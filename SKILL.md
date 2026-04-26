@@ -1,11 +1,11 @@
 ---
 name: gohighlevel
-description: "GoHighLevel API integration skill. Use for: managing contacts, opportunities, pipelines, calendars, and webhooks in GoHighLevel via API v2 using Private Integration Tokens. Compatible with OpenClaw and Claude Code."
+description: "Comprehensive GoHighLevel API v2 integration skill. Use for: managing contacts, opportunities, pipelines, calendars, webhooks, users, locations, workflows, invoices, forms, surveys, social planner, and email campaigns via API v2 using Private Integration Tokens. Compatible with OpenClaw and Claude Code."
 ---
 
 # GoHighLevel API Skill
 
-This skill provides the necessary tools and references to interact with the GoHighLevel (GHL) API v2. It enables AI agents to manage client businesses, including contacts, sales pipelines, appointments, and webhooks.
+This skill provides the necessary tools and references to interact with the GoHighLevel (GHL) API v2. It enables AI agents to fully manage client businesses across all major GHL modules.
 
 ## Prerequisites
 
@@ -13,7 +13,7 @@ To use this skill, you need a **Private Integration Token** from the GoHighLevel
 
 1. In GoHighLevel, navigate to **Settings > Private Integrations**.
 2. Click **Create new Integration**.
-3. Select the necessary scopes (e.g., `contacts.readonly`, `contacts.write`, `opportunities.readonly`, `opportunities.write`, `calendars.readonly`).
+3. Select the necessary scopes (e.g., `contacts.write`, `opportunities.write`, `calendars.readonly`, `invoices.write`, etc.).
 4. Copy the generated token.
 
 Set the token as an environment variable before running scripts:
@@ -25,7 +25,7 @@ export GHL_API_TOKEN="your_private_integration_token"
 
 ### 1. API Helper Script (`scripts/ghl_api.py`)
 
-A Python helper script is provided to interact with the GHL API easily. It handles authentication, headers, and common endpoints.
+A comprehensive Python helper script is provided to interact with the GHL API easily. It handles authentication, headers, and endpoints for all major modules.
 
 **Usage:**
 ```bash
@@ -33,13 +33,16 @@ A Python helper script is provided to interact with the GHL API easily. It handl
 python3 /home/ubuntu/skills/gohighlevel/scripts/ghl_api.py get_contact --id "CONTACT_ID"
 
 # Search contacts in a location
-python3 /home/ubuntu/skills/gohighlevel/scripts/ghl_api.py search_contacts --location "LOCATION_ID"
+python3 /home/ubuntu/skills/gohighlevel/scripts/ghl_api.py get_contacts --location "LOCATION_ID"
 
 # Get pipelines
 python3 /home/ubuntu/skills/gohighlevel/scripts/ghl_api.py get_pipelines --location "LOCATION_ID"
 
 # Get calendars
 python3 /home/ubuntu/skills/gohighlevel/scripts/ghl_api.py get_calendars --location "LOCATION_ID"
+
+# List invoices
+python3 /home/ubuntu/skills/gohighlevel/scripts/ghl_api.py list_invoices --location "LOCATION_ID"
 ```
 
 You can also import this script into your own Python code:
@@ -52,28 +55,33 @@ api = GoHighLevelAPI(token="YOUR_TOKEN")
 contact = api.get_contact("CONTACT_ID")
 ```
 
-### 2. API Reference (`references/api_reference.md`)
+### 2. API References
 
-For detailed information on endpoints, request bodies, and webhook structures, refer to the API reference document.
+For detailed information on endpoints, request bodies, and webhook structures, refer to the domain-specific API reference documents:
 
-**Read the reference:**
+- **Core CRM:** `references/api_reference.md` (Contacts, Opportunities, Webhooks)
+- **Communication:** `references/conversations_calendars.md` (Conversations, Calendars, Appointments)
+- **Admin:** `references/users_locations_workflows.md` (Users, Locations, Workflows)
+- **Marketing & Finance:** `references/marketing_finance.md` (Forms, Surveys, Invoices, Social Planner, Email Campaigns)
+
+**Read a reference:**
 ```bash
-cat /home/ubuntu/skills/gohighlevel/references/api_reference.md
+cat /home/ubuntu/skills/gohighlevel/references/marketing_finance.md
 ```
 
 ## Common Workflows
 
-### Managing Contacts
+### Managing Contacts & Pipelines
 
-1. **Search for a contact:** Use `search_contacts` with the `locationId` and an optional `query` (email, phone, or name).
-2. **Create a contact:** Use the `create_contact` method in the Python script, providing `locationId`, `firstName`, `lastName`, `email`, etc.
-3. **Update a contact:** Use the `update_contact` method with the `contactId` and the fields to update.
-
-### Managing Opportunities (Sales Pipeline)
-
-1. **Get Pipelines:** First, fetch the pipelines for the location using `get_pipelines` to get the `pipelineId` and `stageId`s.
+1. **Search for a contact:** Use `get_contacts` with the `locationId` and an optional `query` (email, phone, or name).
 2. **Create Opportunity:** Use `create_opportunity` with the `pipelineId`, `locationId`, `contactId`, `name`, and `stageId`.
 3. **Move Opportunity:** Use `update_opportunity` to change the `stageId` or `status` (open, won, lost, abandoned).
+
+### Managing Appointments
+
+1. **Get Calendars:** Fetch calendars for the location using `get_calendars`.
+2. **Check Availability:** Use `get_free_slots` to find open times.
+3. **Book Appointment:** Use `create_appointment` with the `calendarId`, `locationId`, `contactId`, `startTime`, and `endTime`.
 
 ### Handling Webhooks
 
@@ -88,4 +96,3 @@ GoHighLevel can send real-time updates to your application.
 - **API Version:** This skill uses GoHighLevel API v2 (`Version: 2021-07-28`).
 - **Authentication:** Always use the `Authorization: Bearer <TOKEN>` header.
 - **Rate Limits:** Be mindful of GoHighLevel API rate limits (typically 100 requests per 10 seconds per location).
-location).
